@@ -1,0 +1,14 @@
+# Kompilerade filer
+*.out
+*.exe
+*.o
+*.app
+*.bak
+
+# Python-skräp
+__pycache__/
+*.pyc
+
+# OS-specifikt
+.DS_Store
+Thumbs.db
