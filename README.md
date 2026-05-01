@@ -41,7 +41,7 @@ Simulatorn försöker automatiskt starta i helskärm. Koden hanterar detta via e
     Windows använder: self.root.state('zoomed')
     Skulle fönstret bete sig konstigt vid start, kan du kommentera bort dessa rader i moodle_sim.py (runt rad 14).
 
-Problem med kompilering (Kommando-namn):
+### Problem med kompilering (Kommando-namn):
 Simulatorn anropar grader.py via kommandot python3 grader.py. Om du sitter på Windows och din Python-installation bara heter python, kan du behöva ändra raden:
 process = subprocess.run(["python3", "grader.py", task_path]...
 till:
