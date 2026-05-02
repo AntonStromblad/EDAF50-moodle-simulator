@@ -106,6 +106,8 @@ class MoodleSimulator:
                                                      insertbackground="white", relief=tk.FLAT, borderwidth=10, padx=10, pady=10)
         self.code_editor.pack(fill=tk.BOTH, expand=True)
         self.code_editor.tag_configure("comment", foreground="#6A9955")
+        self.code_editor.tag_configure("primitive", foreground="#569CD6")
+        self.code_editor.tag_configure("keywords", foreground="#C586C0")
         
         # Uppdatera färgerna varje gång en tangent släpps
         self.code_editor.bind("<KeyRelease>", self.highlight_syntax)
@@ -305,35 +307,36 @@ class MoodleSimulator:
         self.output_console.config(state=tk.DISABLED)
 
     def highlight_syntax(self, event=None):
-        """Hittar och färglägger C++ kommentarer i texteditorn."""
-        # 1. Rensa gamla färg-taggar först
-        self.code_editor.tag_remove("comment", "1.0", tk.END)
+        """Hittar och färglägger C++ syntax i texteditorn."""
         
-        # 2. Hämta all kod
+        self.code_editor.tag_remove("comment", "1.0", tk.END)
+        self.code_editor.tag_remove("primitive", "1.0", tk.END)
+        
         code = self.code_editor.get("1.0", tk.END)
         
-        # 3. Regex för att hitta: 
-        # (// följt av vad som helst till slutet av raden) ELLER (/* följt av vad som helst fram till */)
-        pattern = r'(//.*?$)|(/\*.*?\*/)'
+  
+        syntax_patterns = {
+            "comment": r'(//.*?$)|(/\*.*?\*/)',
+            "primitive": r'\b(int|double|float|char|bool|void|auto|short|long|unsigned)\b',
+            "keywords": r'\b(if|else|for|while|return|class|public|private)\b'
+        }
         
-        # 4. Hitta alla träffar och markera dem i Tkinter
-        for match in re.finditer(pattern, code, flags=re.MULTILINE | re.DOTALL):
-            start_idx = match.start()
-            end_idx = match.end()
-            
-            # Konvertera string-index till Tkinter-index (Rad.Kolumn)
-            start_line = code.count('\n', 0, start_idx) + 1
-            start_col = start_idx - code.rfind('\n', 0, start_idx) - 1
-            
-            end_line = code.count('\n', 0, end_idx) + 1
-            end_col = end_idx - code.rfind('\n', 0, end_idx) - 1
-            
-            start_tk_idx = f"{start_line}.{start_col}"
-            end_tk_idx = f"{end_line}.{end_col}"
-            
-            # Applicera färgen på området
-            self.code_editor.tag_add("comment", start_tk_idx, end_tk_idx)
-
+        # 4. Gå igenom varje mönster och färglägg!
+        for tag_name, pattern in syntax_patterns.items():
+            for match in re.finditer(pattern, code, flags=re.MULTILINE | re.DOTALL):
+                start_idx = match.start()
+                end_idx = match.end()
+                
+                start_line = code.count('\n', 0, start_idx) + 1
+                start_col = start_idx - code.rfind('\n', 0, start_idx) - 1
+                
+                end_line = code.count('\n', 0, end_idx) + 1
+                end_col = end_idx - code.rfind('\n', 0, end_idx) - 1
+                
+                start_tk_idx = f"{start_line}.{start_col}"
+                end_tk_idx = f"{end_line}.{end_col}"
+                
+                self.code_editor.tag_add(tag_name, start_tk_idx, end_tk_idx)
 if __name__ == "__main__":
     root = tk.Tk()
     app = MoodleSimulator(root)
