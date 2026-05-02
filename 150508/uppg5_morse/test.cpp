@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <cassert>
-
+#include <cstdio> 
 #include "student.cpp"
 
 void run_tests() {
@@ -22,6 +22,8 @@ void run_tests() {
     std::string decoded = mc.decode(secret);
 
     assert(decoded == "hejdu" && "Morse-avkodningen gav felaktigt resultat!");
+    std::remove("morse.def");
+
 
     std::cout << "✅ Uppgift 5: MorseCode-klassen läser filen och avkodar meddelandet perfekt!" << std::endl;
 }

@@ -2,6 +2,8 @@
 #include <fstream>
 #include <sstream>
 #include <cassert>
+#include <cstdio> 
+
 #include "student.cpp"
 
 void run_tests() {
@@ -18,6 +20,11 @@ void run_tests() {
     std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
     
     int result = print_matching_lines("covfefe", "grep_test.txt");
+    
+    // STÄDA UPP DIREKT!
+    // Vi tar bort filen så fort din funktion har läst klart den. 
+    // Då slipper vi skräpfiler även om en assert kraschar programmet på nästa rad.
+    std::remove("grep_test.txt"); 
     
     std::cout.rdbuf(old_cout);
     std::string output = buffer.str();
