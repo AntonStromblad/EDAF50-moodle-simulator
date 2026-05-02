@@ -11,7 +11,11 @@ public:
     // Din konstruktor här 
     
     // Dina getters här
-    
+
+	Vector2D(const int x, const int y): x{x}, y{y} {};
+	const int get_x(){return x;}
+	const int get_y(){return y;}
+    	
     // Din operator+ här. Den ska returnera en ny Vector2D.
     // Exempel: Vector2D operator+(const Vector2D& other) const;
 

@@ -3,6 +3,7 @@ from tkinter import ttk, scrolledtext, messagebox
 import subprocess
 import os
 import shutil
+import re
 
 class MoodleSimulator:
     def __init__(self, root):
@@ -104,6 +105,10 @@ class MoodleSimulator:
         self.code_editor = scrolledtext.ScrolledText(mid_frame, font=code_font, bg="#1e1e1e", fg="#d4d4d4", 
                                                      insertbackground="white", relief=tk.FLAT, borderwidth=10, padx=10, pady=10)
         self.code_editor.pack(fill=tk.BOTH, expand=True)
+        self.code_editor.tag_configure("comment", foreground="#6A9955")
+        
+        # Uppdatera färgerna varje gång en tangent släpps
+        self.code_editor.bind("<KeyRelease>", self.highlight_syntax)
 
         # --- Layout: Bottom Frame (Terminal) ---
         bot_frame = tk.Frame(root, padx=20, pady=15, bg="#2b2b2b")
@@ -243,6 +248,7 @@ class MoodleSimulator:
                 code = f.read()
             self.code_editor.delete("1.0", tk.END)
             self.code_editor.insert(tk.END, code)
+            self.highlight_syntax()
             self.print_output(f"📂 Laddade filen: {student_file}")
         except Exception as e:
             self.print_output(f"❌ Fel vid laddning av fil: {e}")
@@ -262,6 +268,7 @@ class MoodleSimulator:
                     
                     self.code_editor.delete("1.0", tk.END)
                     self.code_editor.insert(tk.END, original_code)
+                    self.highlight_syntax()
                     self.print_output("🔄 Koden har återställts till ursprungsläget!")
                 except Exception as e:
                     self.print_output(f"❌ Kunde inte återställa: {e}")
@@ -296,6 +303,36 @@ class MoodleSimulator:
         self.output_console.delete("1.0", tk.END)
         self.output_console.insert(tk.END, text)
         self.output_console.config(state=tk.DISABLED)
+
+    def highlight_syntax(self, event=None):
+        """Hittar och färglägger C++ kommentarer i texteditorn."""
+        # 1. Rensa gamla färg-taggar först
+        self.code_editor.tag_remove("comment", "1.0", tk.END)
+        
+        # 2. Hämta all kod
+        code = self.code_editor.get("1.0", tk.END)
+        
+        # 3. Regex för att hitta: 
+        # (// följt av vad som helst till slutet av raden) ELLER (/* följt av vad som helst fram till */)
+        pattern = r'(//.*?$)|(/\*.*?\*/)'
+        
+        # 4. Hitta alla träffar och markera dem i Tkinter
+        for match in re.finditer(pattern, code, flags=re.MULTILINE | re.DOTALL):
+            start_idx = match.start()
+            end_idx = match.end()
+            
+            # Konvertera string-index till Tkinter-index (Rad.Kolumn)
+            start_line = code.count('\n', 0, start_idx) + 1
+            start_col = start_idx - code.rfind('\n', 0, start_idx) - 1
+            
+            end_line = code.count('\n', 0, end_idx) + 1
+            end_col = end_idx - code.rfind('\n', 0, end_idx) - 1
+            
+            start_tk_idx = f"{start_line}.{start_col}"
+            end_tk_idx = f"{end_line}.{end_col}"
+            
+            # Applicera färgen på området
+            self.code_editor.tag_add("comment", start_tk_idx, end_tk_idx)
 
 if __name__ == "__main__":
     root = tk.Tk()
