@@ -5,6 +5,7 @@
 *.app
 *.bak
 
+student.cpp
 # Python-skräp
 __pycache__/
 *.pyc
