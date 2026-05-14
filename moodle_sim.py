@@ -4,6 +4,7 @@ import subprocess
 import os
 import shutil
 import re
+import tkinter.font as tkfont
 
 class MoodleSimulator:
     def __init__(self, root):
@@ -105,6 +106,16 @@ class MoodleSimulator:
         self.code_editor = scrolledtext.ScrolledText(mid_frame, font=code_font, bg="#1e1e1e", fg="#d4d4d4", 
                                                      insertbackground="white", relief=tk.FLAT, borderwidth=10, padx=10, pady=10)
         self.code_editor.pack(fill=tk.BOTH, expand=True)
+        font_obj = tkfont.Font(font=self.code_editor['font'])
+        tab_width = font_obj.measure('    ') # 4 mellanslag
+        
+        self.code_editor.config(tabs=(tab_width,))
+        
+        def insert_spaces(event):
+            self.code_editor.insert(tk.INSERT, "    ")
+            return "break"
+            
+        self.code_editor.bind("<Tab>", insert_spaces)
         self.code_editor.tag_configure("comment", foreground="#6A9955")
         self.code_editor.tag_configure("primitive", foreground="#569CD6")
         self.code_editor.tag_configure("keywords", foreground="#C586C0")
@@ -161,7 +172,7 @@ class MoodleSimulator:
         """Skannar igenom mapparna och bygger en dictionary: { '170605': ['uppg1_ptr', 'uppg3_namelist'] }"""
         exams = {}
         for root_dir, dirs, files in os.walk('.'):
-            if 'student.cpp' in files and 'test.cpp' in files:
+            if 'student_template.cpp' in files and 'test.cpp' in files:
                 clean_path = root_dir.replace('\\', '/').removeprefix('./')
                 parts = clean_path.split('/')
                 # Ignorera warmup-mappen i dropdown-menyerna
@@ -222,7 +233,7 @@ class MoodleSimulator:
         if not task_path: return
         
         os.makedirs(task_path, exist_ok=True)
-        student_file = os.path.join(task_path, "student.cpp")
+        student_file = os.path.join(task_path, "student_template.cpp")
         
         if not os.path.exists(student_file):
             with open(student_file, "w", encoding="utf-8") as f:
@@ -238,44 +249,56 @@ class MoodleSimulator:
         self.load_code_from_path(student_file)
 
     def load_code_from_path(self, student_file):
-        """Hjälpfunktion för att ladda filinnehåll och hantera backups"""
-        backup_file = student_file + ".bak"
+        """Laddar student.cpp. Om den inte finns, skapa den från mallen."""
+        import os
+        import shutil
+
+        # Definiera sökvägen till mallen (vi antar att den ligger i samma mapp)
+        template_file = student_file.replace("student.cpp", "student_template.cpp")
         
-        # Skapa en dold backup ifall användaren vill "Återställa" koden senare
-        if not os.path.exists(backup_file) and os.path.exists(student_file):
-            shutil.copy(student_file, backup_file)
-            
+        # 1. Om student.cpp INTE finns, men mallen finns -> Skapa student.cpp
+        if not os.path.exists(student_file) and os.path.exists(template_file):
+            try:
+                shutil.copy(template_file, student_file)
+            except Exception as e:
+                self.print_output(f"❌ Kunde inte skapa arbetsfil: {e}")
+
+        # 2. Försök ladda student.cpp (som nu garanterat finns om mallen fanns)
         try:
             with open(student_file, "r", encoding="utf-8") as f:
                 code = f.read()
             self.code_editor.delete("1.0", tk.END)
             self.code_editor.insert(tk.END, code)
             self.highlight_syntax()
-            self.print_output(f"📂 Laddade filen: {student_file}")
         except Exception as e:
-            self.print_output(f"❌ Fel vid laddning av fil: {e}")
+            self.print_output(f"❌ Fel vid laddning: {e}")
+
 
     def reset_code(self):
-        """Återställer koden från backup-filen"""
+        """Återställer student.cpp genom att kopiera över mallen igen"""
         task_path = self.get_current_task_path()
         if not task_path: return
         
-        backup_file = os.path.join(task_path, "student.cpp.bak")
+        student_file = os.path.join(task_path, "student.cpp")
+        template_file = os.path.join(task_path, "student_template.cpp")
         
-        if os.path.exists(backup_file):
-            if messagebox.askyesno("Bekräfta återställning", "Är du säker på att du vill kasta din nuvarande kod och börja om från början?"):
+        if os.path.exists(template_file):
+            if messagebox.askyesno("Bekräfta återställning", "Vill du kasta din kod och återställa till mallen?"):
                 try:
-                    with open(backup_file, "r", encoding="utf-8") as f:
-                        original_code = f.read()
+                    # Kopiera mallen till arbetsfilen (skriver över lösningen)
+                    shutil.copy(template_file, student_file)
                     
+                    # Ladda in den nyss återställda texten i editorn
+                    with open(student_file, "r", encoding="utf-8") as f:
+                        original_code = f.read()
+
                     self.code_editor.delete("1.0", tk.END)
                     self.code_editor.insert(tk.END, original_code)
                     self.highlight_syntax()
-                    self.print_output("🔄 Koden har återställts till ursprungsläget!")
                 except Exception as e:
                     self.print_output(f"❌ Kunde inte återställa: {e}")
         else:
-            self.print_output("⚠️ Ingen backup hittades. Kanske är detta redan originalkoden?")
+            self.print_output("⚠️ Hittade ingen mallfil (student_template.cpp) att återställa ifrån!")
 
     def run_grader(self):
         task_path = self.get_current_task_path()
