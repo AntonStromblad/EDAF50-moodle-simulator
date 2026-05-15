@@ -14,7 +14,8 @@ def grade(task_path):
     
     # Vi kompilerar test.cpp (som i sin tur inkluderar student.cpp)
     # Vi lägger till -Wall för varningar och -fsanitize=address för att hitta minnesläckor (frivilligt men bra!)
-    compile_cmd = ["g++", "-std=c++11", "-Wall", test_file, "-o", output_exe]
+    # Lägg till "-fsanitize=address" och "-g" (för radnummer)
+    compile_cmd = ["g++", "-std=c++11", "-Wall", "-fsanitize=address", "-g", test_file, "-o", output_exe]
     
     compile_process = subprocess.run(compile_cmd, capture_output=True, text=True)
     
