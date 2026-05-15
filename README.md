@@ -2,7 +2,7 @@
 
 Ett totalt vibekodat hjälpverktyg till kursen EDAF50
 
-En lokal övningsmiljö och autograder för att träna inför C++ tentamen. Simulatorn efterliknar den riktiga examensmiljön (Moodle) genom att erbjuda en rå texteditor **helt utan autocompletion**, för att tvinga dig att bygga muskelminne för syntax, minneshantering och STL-algoritmer.
+En lokal övningsmiljö och autograder för att träna inför C++ tentamen. Simulatorn efterliknar den riktiga examensmiljön (Moodle) genom att erbjuda en rå texteditor **helt utan autocompletion**, för att tvinga dig att bygga muskelminne för syntax, minneshantering och STL-algoritmer. Jag själv går igenom programmet eftersom och rättar mig igenom programmet/tentor där claude har gjort konstiga fel eller bara ljuger. Tentor som är "buggcheckade" av mig: 220317,
 
 ## ✨ Funktioner
 
