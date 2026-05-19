@@ -15,17 +15,6 @@ public:
     // Standardkonstruktor (Redan färdig)
     IntArray(size_t size) : m_size(size), m_data(new int[size]{}) {}
 
-    // ---------------------------------------------------------
-    // SKRIV DIN KOD HÄR UNDER:
-    
-    // 1. Destruktor: ~IntArray()
-    
-    // 2. Kopieringskonstruktor: IntArray(const IntArray& other)
-    
-    // 3. Kopieringstilldelningsoperator: IntArray& operator=(const IntArray& other)
-
-    // ---------------------------------------------------------
-
     // Getters och Setters (Låt dessa vara, de används av testerna)
     size_t size() const { return m_size; }
     int get(size_t index) const { return m_data[index]; }

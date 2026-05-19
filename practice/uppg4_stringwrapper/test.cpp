@@ -2,43 +2,40 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
-#include <numeric>
 #include <string>
 #include <sstream>
 
-// Inkludera studentens kod
+// Inkludera din kod här
 #include "student.cpp"
 
-// --- LÄRARENS EXEMPELKOD (Från uppgiften) ---
+// --- LÄRARENS KOD ---
 
-std::vector<Foo> example1() {
+std::vector<StringWrapper> example1() {
     std::cout << "example1:\n";
-    constexpr auto sz = 10;
-    std::vector<Foo> v(sz);
-    std::iota(begin(v), end(v), 1);
-    std::ostream_iterator<int> it(std::cout, " ");
-    std::copy(begin(v), end(v), it);
+    std::vector<StringWrapper> words(3);
+    std::fill(begin(words), end(words), "C++");
+    
+    std::ostream_iterator<std::string> it(std::cout, "-");
+    std::copy(begin(words), end(words), it);
     std::cout << '\n';
-    return v;
+    return words;
 }
 
 template <typename F>
-auto apply(const F& f) -> decltype(f()) {
+auto get_result(const F& f) -> decltype(f()) {
     return f();
 }
 
-void example2(const std::vector<Foo>& v) {
+void example2(const std::vector<StringWrapper>& words) {
     std::cout << "example2:\n";
-    std::vector<Foo> w;
-    std::transform(begin(v), end(v), back_inserter(w), apply<Foo>);
-    std::ostream_iterator<int> it(std::cout, " ");
-    std::copy(begin(v), end(v), it);
-    std::cout << '\n';
-    std::copy(begin(w), end(w), it);
+    std::vector<size_t> lengths;
+    std::transform(begin(words), end(words), back_inserter(lengths), get_result<StringWrapper>);
+    std::ostream_iterator<size_t> it(std::cout, " ");
+    std::copy(begin(lengths), end(lengths), it);
     std::cout << '\n';
 }
 
-// --- AUTOMATISERAD TESTMILJÖ ---
+// --- AUTOMATISERADE TESTER ---
 
 bool test_part_a() {
     std::cout << "[TEST] Startar Uppgift A (example1)...\n";
@@ -46,16 +43,14 @@ bool test_part_a() {
     std::stringstream buffer;
     std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
 
-    // Kör lärarens kod för del A
-    auto v = example1();
+    auto words = example1();
 
-    std::cout.rdbuf(old_cout); // Återställ cout
+    std::cout.rdbuf(old_cout);
     std::string output = buffer.str();
+    std::string expected = "example1:\nC++-C++-C++-\n";
 
-    std::string expected = "example1:\n1 2 3 4 5 6 7 8 9 10 \n";
-
-    if (output == expected && v.size() == 10) {
-        std::cout << "✅ [UPPGIFT A]: Godkänd! example1() ger exakt rätt utskrift.\n\n";
+    if (output == expected && words.size() == 3) {
+        std::cout << "✅ [UPPGIFT A]: Godkänd! example1() skriver ut C++-C++-C++-.\n\n";
         return true;
     } else {
         std::cout << "❌ [UPPGIFT A]: Misslyckades!\n";
@@ -76,20 +71,17 @@ bool test_part_b(bool a_passed) {
     std::stringstream buffer;
     std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
 
-    // Skapa data via example1, men rensa bufferten så vi bara mäter example2
-    auto v = example1();
-    buffer.str(""); 
+    auto words = example1();
+    buffer.str(""); // Rensa bufferten 
 
-    // Kör lärarens kod för del B
-    example2(v);
+    example2(words);
 
-    std::cout.rdbuf(old_cout); // Återställ cout
+    std::cout.rdbuf(old_cout);
     std::string output = buffer.str();
-
-    std::string expected = "example2:\n1 2 3 4 5 6 7 8 9 10 \n2 4 6 8 10 12 14 16 18 20 \n";
+    std::string expected = "example2:\n3 3 3 \n";
 
     if (output == expected) {
-        std::cout << "✅ [UPPGIFT B]: Godkänd! example2() dubblerar värdena korrekt.\n\n";
+        std::cout << "✅ [UPPGIFT B]: Godkänd! example2() räknar ut längderna korrekt.\n\n";
         return true;
     } else {
         std::cout << "❌ [UPPGIFT B]: Misslyckades!\n";
@@ -101,14 +93,14 @@ bool test_part_b(bool a_passed) {
 
 int main() {
     std::cout << "====================================\n";
-    std::cout << "Kör tester för Foo-klassen\n";
+    std::cout << "Kör tester för StringWrapper\n";
     std::cout << "====================================\n\n";
 
     bool a_passed = test_part_a();
     bool b_passed = test_part_b(a_passed);
 
     if (a_passed && b_passed) {
-        std::cout << "🌟 Snyggt jobbat! Båda delarna är helt perfekta.\n";
+        std::cout << "🌟 Fenomenalt! Båda delarna lösta perfekt.\n";
     }
 
     return 0;
