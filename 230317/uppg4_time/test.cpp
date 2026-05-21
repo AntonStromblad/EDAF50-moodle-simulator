@@ -46,7 +46,9 @@ void run_tests() {
         "[malformed line ignored]\n";
 
     if (output != expected) {
-        std::cout << "❌ Utskriften matchade inte det förväntade resultatet!\n\nFick:\n" << output << "\nFörväntade:\n" << expected;
+        std::cerr << "❌ Utskriften matchade inte det förväntade resultatet!\n\n"
+                  << "--- FICK ---\n" << output 
+                  << "--- FÖRVÄNTADE ---\n" << expected << std::endl; // std::endl tömmer bufferten direkt
         assert(false);
     }
     
