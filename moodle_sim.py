@@ -108,7 +108,6 @@ class MoodleSimulator:
         self.code_editor.pack(fill=tk.BOTH, expand=True)
         font_obj = tkfont.Font(font=self.code_editor['font'])
         tab_width = font_obj.measure('    ') # 4 mellanslag
-        
         self.code_editor.config(tabs=(tab_width,))
         
         def insert_spaces(event):

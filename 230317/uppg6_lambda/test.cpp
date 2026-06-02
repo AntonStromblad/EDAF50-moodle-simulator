@@ -3,42 +3,56 @@
 #include <algorithm>
 #include <iterator>
 #include <sstream>
-#include <cassert>
+#include <string>
 
 // Inkludera din lösning
 #include "student.cpp"
 
-void run_tests() {
+// Returnerar true om testet passerar, annars false
+bool run_tests() {
     std::vector<int> v = {1, 2, 3, 4, 5, 6, 7};
     int x = 4;
     
     std::stringstream buffer;
+    // Spara originalbuffern och omdirigera std::cout till vår stringstream
     std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
 
-    // Testar med x = 4
-    auto f = my_less_than(x);
-    std::copy_if(begin(v), end(v), std::ostream_iterator<int>(std::cout), f);
+    // 1. Testar med ursprungligt x = 4
+    auto f = my_less_than<int>(x);
+    std::copy_if(v.begin(), v.end(), std::ostream_iterator<int>(std::cout), f);
     std::cout << "\n";
     
-    // Eftersom lambda fångade by-reference ska uppdateringen av x påverka functorn!
+    // 2. Uppdatera x. Eftersom functorn/lambdat ska fånga by-reference 
+    // måste detta påverka resultatet!
     x = 7;
-    std::copy_if(begin(v), end(v), std::ostream_iterator<int>(std::cout), f);
+    std::copy_if(v.begin(), v.end(), std::ostream_iterator<int>(std::cout), f);
     std::cout << "\n";
 
+    // Återställ std::cout omedelbart efter att testsekvensen är klar
     std::cout.rdbuf(old_cout);
+    
     std::string output = buffer.str();
-
     std::string expected = "123\n123456\n";
     
     if (output != expected) {
-        std::cout << "❌ Functorn betedde sig inte som det förväntade lambdat!\n\nFick:\n" << output << "Förväntade:\n" << expected;
-        assert(false);
+        std::cout << "\n==================================================\n";
+        std::cout << "❌ TEST MISSLYCKADES: Uppgift 6 (my_less_than)\n";
+        std::cout << "==================================================\n";
+        std::cout << "--- FICK UTDATA ---\n" << output;
+        std::cout << "-------------------\n";
+        std::cout << "--- FÖRVÄNTAT   ---\n" << expected;
+        std::cout << "==================================================\n" << std::endl;
+        return false;
     }
     
-    std::cout << "✅ Uppgift 6: my_less_than fungerar precis som capture-by-reference lambdat!" << std::endl;
+    std::cout << "✅ Uppgift 6: my_less_than fungerar utmärkt!" << std::endl;
+    return true;
 }
 
 int main() {
-    run_tests();
+    // Om testet misslyckas returnerar vi 1 till operativsystemet (standard för fel)
+    if (!run_tests()) {
+        return 1;
+    }
     return 0;
 }

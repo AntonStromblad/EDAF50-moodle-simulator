@@ -9,24 +9,14 @@ class result_iter {
 public:
     // Lägg till lämplig konstruktor
     
-    result_iter& operator++() {
-        // Din kod här
-        return *this;
-    }
+    result_iter& operator++() ;
     
-    T& operator*() {
-        // Din kod här
-    }
+    T& operator*() ;
     
-    bool operator!=(Iter other) const {
-        // Din kod här (Notera att du jämför med bas-iteratorn Iter, t.ex. end())
-    }
+    bool operator!=(Iter other) const ;
 
 private:
-    // Din kod här (vilka medlemsvariabler behövs?)
 };
 
 template <typename Iter, typename T>
-result_iter<Iter, T> find_all(Iter first, Iter last, const T& val) {
-    // Din kod här
-}
+result_iter<Iter, T> find_all(Iter first, Iter last, const T& val) ;
