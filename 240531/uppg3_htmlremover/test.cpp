@@ -3,7 +3,6 @@
 #include <iterator>
 #include <string>
 #include <algorithm>
-#include <cassert>
 
 // Inkludera din lösning
 #include "student.cpp"
@@ -20,7 +19,8 @@ void remove_html(std::istream& is, std::ostream& os) {
     std::copy(iit, ie, oi);
 }
 
-void run_tests() {
+// Returnerar true om testet passerar, annars false
+bool run_tests() {
     // Exemplet från tentan
     std::string html =
         "<html><body><H1>Test</H1>\n"
@@ -28,7 +28,7 @@ void run_tests() {
         "<ul><li>item1\n"
         "<li>item2\n"
         "<li>item3</ul>\n"
-        "<p>and some text with special chars (&lt;, &amp; and &gt;) to be translated</p>\n"
+        "<p>and some text with special chars (&lt;, &amp;, and &gt;) to be translated</p>\n"
         "</body></html>";
 
     std::istringstream is(html);
@@ -47,14 +47,24 @@ void run_tests() {
         "and some text with special chars (<, &, and >) to be translated\n";
 
     if (output != expected) {
-        std::cout << "❌ Utskriften stämde inte!\n\nFick:\n" << output << "\n\nFörväntade:\n" << expected;
-        assert(false);
+        std::cout << "\n==================================================\n";
+        std::cout << "❌ TEST MISSLYCKADES: Uppgift remove_html (token-klass)\n";
+        std::cout << "==================================================\n";
+        std::cout << "--- FICK UTDATA ---\n" << output << "\n";
+        std::cout << "-------------------\n";
+        std::cout << "--- FÖRVÄNTAT   ---\n" << expected << "\n";
+        std::cout << "==================================================\n" << std::endl;
+        return false;
     }
 
     std::cout << "✅ Perfekt! Din token-klass rensade bort HTML och översatte tecknen klockrent!" << std::endl;
+    return true;
 }
 
 int main() {
-    run_tests();
+    // Returnera 1 vid fel, 0 vid succé
+    if (!run_tests()) {
+        return 1;
+    }
     return 0;
 }
